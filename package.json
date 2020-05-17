@@ -22,7 +22,6 @@
     "imagemin-webpack-plugin": "^2.4.2",
     "laravel-mix": "^5.0.4",
     "laravel-mix-imagemin": "^1.0.3",
-    "laravel-mix-purgecss": "^5.0.0-rc.2",
     "mix-html-builder": "^0.5.0",
     "vue-template-compiler": "^2.6.11"
   }

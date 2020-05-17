@@ -1,30 +1,30 @@
 const mix = require('laravel-mix')
-require('laravel-mix-purgecss')
 require('mix-html-builder')
 require('laravel-mix-imagemin')
 
 const RESOURCE_ROOT = 'src'
-const PUBLIC_PATH = 'build'
+const BUILD_PATH = 'build'
 
-mix.setPublicPath(PUBLIC_PATH)
+mix.setPublicPath(BUILD_PATH)
 mix.setResourceRoot(RESOURCE_ROOT)
 
-mix.js(`${RESOURCE_ROOT}/app.js`, PUBLIC_PATH)
+mix.js(`${RESOURCE_ROOT}/app.js`, BUILD_PATH)
 
-mix.postCss(`${RESOURCE_ROOT}/app.css`, PUBLIC_PATH, [require('tailwindcss')('tailwind.config.js')])
-    .purgeCss({
-        defaultExtractor: (content) => content.match(/[\w-/.:_]+(?<!:)/g) || [],
-        content: ['index.html', '**/*.js', '**/*.html', '**/*.vue'],
-        css: [`${PUBLIC_PATH}/app.css`],
-    })
+mix.postCss(`${RESOURCE_ROOT}/app.css`, BUILD_PATH, [require('tailwindcss')('tailwind.config.js')])
 
 mix.html({
-    output: '.',
+    output: '.', // output folder is relative to BUILD_PATH
+    htmlRoot: `${RESOURCE_ROOT}/*.html`,
+    partialRoot: `${RESOURCE_ROOT}/partials`,
+    layoutRoot: `${RESOURCE_ROOT}/layouts`,
     minify: {
         removeComments: true,
         removeRedundantAttributes: false,
+        collapseWhitespace: true,
     },
 })
+
+mix.copyDirectory('public/', 'build/')
 
 mix.imagemin(
     'img/**.*',
@@ -34,14 +34,14 @@ mix.imagemin(
     },
     {
         optipng: {
-            optimizationLevel: 5,
+            optimizationLevel: 4,
         },
-        jpegtran: null,
+        plugins: [],
     },
 )
 
 mix.browserSync({
-    server: PUBLIC_PATH,
+    server: BUILD_PATH,
     watch: true,
     proxy: false,
 })
