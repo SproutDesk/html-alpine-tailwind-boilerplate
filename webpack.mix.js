@@ -1,47 +1,44 @@
-const mix = require('laravel-mix')
-require('mix-html-builder')
-require('laravel-mix-imagemin')
+/* eslint-disable global-require */
+/* eslint-disable import/no-extraneous-dependencies */
+const mix = require('laravel-mix');
+require('mix-html-builder');
+require('@chiiya/laravel-mix-imagemin');
 
-const RESOURCE_ROOT = 'src'
-const BUILD_PATH = 'build'
+const SOURCE_PATH = 'src';
+const BUILD_PATH = 'build';
 
-mix.setPublicPath(BUILD_PATH)
-mix.setResourceRoot(RESOURCE_ROOT)
+mix.setPublicPath(BUILD_PATH);
+mix.setResourceRoot(SOURCE_PATH);
 
-mix.js(`${RESOURCE_ROOT}/app.js`, BUILD_PATH)
+mix.js(`${SOURCE_PATH}/app.js`, BUILD_PATH);
 
-mix.postCss(`${RESOURCE_ROOT}/app.css`, BUILD_PATH, [require('tailwindcss')('tailwind.config.js')])
+mix.postCss(`${SOURCE_PATH}/app.css`, BUILD_PATH, [require('tailwindcss')('tailwind.config.js')]);
 
 mix.html({
-    output: '.', // output folder is relative to BUILD_PATH
-    htmlRoot: `${RESOURCE_ROOT}/*.html`,
-    partialRoot: `${RESOURCE_ROOT}/partials`,
-    layoutRoot: `${RESOURCE_ROOT}/layouts`,
-    minify: {
-        removeComments: true,
-        removeRedundantAttributes: false,
-        collapseWhitespace: true,
-    },
-})
+  output: '.', // output relative to BUILD_PATH set in setPublicPath()
+  htmlRoot: `${SOURCE_PATH}/*.html`,
+  partialRoot: `${SOURCE_PATH}/partials`,
+  layoutRoot: `${SOURCE_PATH}/layouts`,
+  minify: !mix.inProduction() ? false : {
+    removeComments: true,
+    removeRedundantAttributes: false,
+    removeScriptTypeAttributes: true,
+    removeStyleLinkTypeAttributes: true,
+    useShortDoctype: true,
+    collapseWhitespace: true,
+    removeOptionalTags: true,
+  },
+});
 
-mix.copyDirectory('public/', 'build/')
-
-mix.imagemin(
-    'img/**.*',
-    {
-        context: RESOURCE_ROOT,
-        force: true,
-    },
-    {
-        optipng: {
-            optimizationLevel: 4,
-        },
-        plugins: [],
-    },
-)
+mix.imagemin({
+  patterns: [
+    { from: `${SOURCE_PATH}/img`, to: 'img' },
+    { from: 'public', to: '.' },
+  ],
+});
 
 mix.browserSync({
-    server: BUILD_PATH,
-    watch: true,
-    proxy: false,
-})
+  server: BUILD_PATH,
+  watch: true,
+  proxy: false,
+});
